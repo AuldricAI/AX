@@ -270,6 +270,8 @@ async function handleCaptureAndDiagnose(payload?: { mode?: 'ax' | 'byok'; clerkT
             throw new Error('No API key configured. Add one in Settings.');
         }
 
+        const systemAndUserPrompt = SYSTEM_PROMPT + buildUserPrompt(JSON.stringify(trimmedCapture, null, 2));
+
         const llmResult = await callLLM(
             settings.llm,
             SYSTEM_PROMPT,
@@ -277,6 +279,17 @@ async function handleCaptureAndDiagnose(payload?: { mode?: 'ax' | 'byok'; clerkT
         );
         content = llmResult.content;
         usage = llmResult.usage;
+
+        // If usage is 0 (some providers might not return it), estimate it
+        if (!usage || (usage.prompt_tokens === 0 && usage.completion_tokens === 0)) {
+            const promptWords = systemAndUserPrompt.split(/\s+/).length;
+            const completionWords = content.split(/\s+/).length;
+            usage = {
+                prompt_tokens: Math.ceil(promptWords * 1.33),
+                completion_tokens: Math.ceil(completionWords * 1.33),
+                total_tokens: Math.ceil((promptWords + completionWords) * 1.33)
+            };
+        }
     }
 
     // 4. Build report
@@ -361,12 +374,28 @@ async function handleGeneratePrompt(payload: { intent: string; mode?: 'ax' | 'by
         // ─── BYOK Mode: Direct LLM Call ───────────────────────────────
         if (!settings.llm.apiKey) throw new Error('No API key configured. Add one in Settings.');
 
+        const systemAndUserPrompt = PROMPT_BUILDER_SYSTEM + buildPromptBuilderUserPrompt(payload.intent, JSON.stringify(trimmedCapture, null, 2));
+
         const llmResult = await callLLM(
             settings.llm,
             PROMPT_BUILDER_SYSTEM,
             buildPromptBuilderUserPrompt(payload.intent, JSON.stringify(trimmedCapture, null, 2)),
         );
         content = llmResult.content;
+
+        // Estimate tokens and log the cost for open source users
+        let usage = llmResult.usage;
+        if (!usage || (usage.prompt_tokens === 0 && usage.completion_tokens === 0)) {
+            const promptWords = systemAndUserPrompt.split(/\s+/).length;
+            const completionWords = content.split(/\s+/).length;
+            usage = {
+                prompt_tokens: Math.ceil(promptWords * 1.33),
+                completion_tokens: Math.ceil(completionWords * 1.33),
+                total_tokens: Math.ceil((promptWords + completionWords) * 1.33)
+            };
+        }
+        const cost = estimateCost(settings.llm.provider, usage);
+        console.log(`[AX Prompt] Estimated Token Usage: ${usage.total_tokens} tokens (Cost: ${cost})`);
     }
 
     return {
