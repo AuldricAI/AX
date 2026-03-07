@@ -5,6 +5,7 @@ import { RootLayout } from './layouts/RootLayout';
 import App from './App';
 import { SignInPage } from './pages/SignInPage';
 import { SignUpPage } from './pages/SignUpPage';
+import { SuccessPage } from './pages/SuccessPage';
 import '../styles/index.css';
 
 // Use HashRouter so we can open routes directly in a new tab
@@ -16,6 +17,7 @@ const router = createHashRouter([
             { path: '/', element: <App /> },
             { path: '/sign-in', element: <SignInPage /> },
             { path: '/sign-up', element: <SignUpPage /> },
+            { path: '/success', element: <SuccessPage /> },
         ],
     },
 ]);
