@@ -68,7 +68,7 @@ export function SettingsTab({ settings, onSave }: Props) {
                             value={ownKey}
                             onChange={(e) => setOwnKey(e.target.value)}
                             placeholder="Enter your API key"
-                            className="w-full text-xs bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                            className="w-full text-xs bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
                         />
                         <p className="text-[10px] text-slate-600">
                             🔒 Stored locally. Never sent anywhere except your provider.
@@ -81,7 +81,7 @@ export function SettingsTab({ settings, onSave }: Props) {
                             value={ownEndpoint}
                             onChange={(e) => setOwnEndpoint(e.target.value)}
                             placeholder="https://api.openai.com/v1/chat/completions"
-                            className="w-full text-xs bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                            className="w-full text-xs bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
                         />
                     </div>
                     <div className="space-y-1.5">
@@ -91,7 +91,7 @@ export function SettingsTab({ settings, onSave }: Props) {
                             value={ownModel}
                             onChange={(e) => setOwnModel(e.target.value)}
                             placeholder="gpt-4o-mini"
-                            className="w-full text-xs bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                            className="w-full text-xs bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
                         />
                     </div>
 
@@ -108,7 +108,7 @@ export function SettingsTab({ settings, onSave }: Props) {
                         </div>
 
                         <div className="space-y-3">
-                            <label className="flex items-center gap-3 p-3 rounded-xl border border-white/5 bg-white/5 cursor-pointer hover:bg-white/10 transition-colors">
+                            <label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all duration-200 ${projectStage === 'early-dev' ? 'bg-white/10 border-[#85002F]/50 shadow-[0_0_15px_rgba(133,0,47,0.1)]' : 'border-white/5 bg-white/5 hover:bg-white/10'}`}>
                                 <input
                                     type="radio"
                                     name="projectStage"
@@ -118,11 +118,11 @@ export function SettingsTab({ settings, onSave }: Props) {
                                     className="w-4 h-4 text-[#85002F] bg-black/50 border-white/20 focus:ring-[#85002F] focus:ring-offset-black"
                                 />
                                 <div className="flex-1">
-                                    <p className="text-sm font-medium text-white">1. Early Development</p>
+                                    <p className={`text-sm font-medium transition-colors ${projectStage === 'early-dev' ? 'text-white' : 'text-slate-300'}`}>1. Early Development</p>
                                     <p className="text-xs text-white/50 mt-1">Focus only on broken code, errors, and crashes. Ignores SEO, alt text, and minor performance quirks.</p>
                                 </div>
                             </label>
-                            <label className="flex items-center gap-3 p-3 rounded-xl border border-white/5 bg-white/5 cursor-pointer hover:bg-white/10 transition-colors">
+                            <label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all duration-200 ${projectStage === 'pre-launch' ? 'bg-white/10 border-[#85002F]/50 shadow-[0_0_15px_rgba(133,0,47,0.1)]' : 'border-white/5 bg-white/5 hover:bg-white/10'}`}>
                                 <input
                                     type="radio"
                                     name="projectStage"
@@ -132,11 +132,11 @@ export function SettingsTab({ settings, onSave }: Props) {
                                     className="w-4 h-4 text-[#85002F] bg-black/50 border-white/20 focus:ring-[#85002F] focus:ring-offset-black"
                                 />
                                 <div className="flex-1">
-                                    <p className="text-sm font-medium text-white">2. Pre-launch / QA</p>
+                                    <p className={`text-sm font-medium transition-colors ${projectStage === 'pre-launch' ? 'text-white' : 'text-slate-300'}`}>2. Pre-launch / QA</p>
                                     <p className="text-xs text-white/50 mt-1">Strict grading. Checks accessibility (WCAG), performance (TTFB), and SEO fundamentals heavily.</p>
                                 </div>
                             </label>
-                            <label className="flex items-center gap-3 p-3 rounded-xl border border-white/5 bg-white/5 cursor-pointer hover:bg-white/10 transition-colors">
+                            <label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all duration-200 ${projectStage === 'production' ? 'bg-white/10 border-[#85002F]/50 shadow-[0_0_15px_rgba(133,0,47,0.1)]' : 'border-white/5 bg-white/5 hover:bg-white/10'}`}>
                                 <input
                                     type="radio"
                                     name="projectStage"
@@ -146,7 +146,7 @@ export function SettingsTab({ settings, onSave }: Props) {
                                     className="w-4 h-4 text-[#85002F] bg-black/50 border-white/20 focus:ring-[#85002F] focus:ring-offset-black"
                                 />
                                 <div className="flex-1">
-                                    <p className="text-sm font-medium text-white">3. Production</p>
+                                    <p className={`text-sm font-medium transition-colors ${projectStage === 'production' ? 'text-white' : 'text-slate-300'}`}>3. Production</p>
                                     <p className="text-xs text-white/50 mt-1">Hyper-focused on end-user impact, unhandled edge cases, and systemic performance degradation.</p>
                                 </div>
                             </label>
@@ -183,7 +183,7 @@ export function SettingsTab({ settings, onSave }: Props) {
                                         value={spec.name}
                                         onChange={(e) => updateSpec(spec.id, 'name', e.target.value)}
                                         placeholder="Spec Name (e.g., Cursor Rules)"
-                                        className="flex-1 text-xs bg-slate-900 border border-slate-700 rounded p-1.5 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500"
+                                        className="flex-1 text-xs bg-slate-900 border border-slate-700 rounded p-1.5 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 transition-all duration-200"
                                     />
                                     <button
                                         onClick={() => removeSpec(spec.id)}
@@ -197,7 +197,7 @@ export function SettingsTab({ settings, onSave }: Props) {
                                     value={spec.content}
                                     onChange={(e) => updateSpec(spec.id, 'content', e.target.value)}
                                     placeholder="Paste your rules or specifications here..."
-                                    className="w-full text-xs font-mono bg-slate-900 border border-slate-700 rounded p-2 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 h-24 resize-y"
+                                    className="w-full text-xs font-mono bg-slate-900 border border-slate-700 rounded p-2 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 transition-all duration-200 h-24 resize-y"
                                 />
                             </div>
                         ))
@@ -211,7 +211,7 @@ export function SettingsTab({ settings, onSave }: Props) {
                     onClick={handleSave}
                     className={`w-full py-2 rounded-lg text-xs font-medium transition-all ${saved
                         ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
-                        : 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-400 hover:to-purple-500 shadow-lg shadow-indigo-500/20'
+                        : 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-400 hover:to-purple-500 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-indigo-500/20'
                         }`}
                 >
                     {saved ? '✅ Saved!' : 'Save Settings'}

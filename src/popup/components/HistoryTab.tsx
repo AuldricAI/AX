@@ -50,9 +50,9 @@ export function HistoryTab() {
                     {selectedReport.issues.map((issue, i) => (
                         <div key={i} className="flex items-center gap-2 p-2 rounded-md bg-slate-800/30">
                             <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${issue.severity === 'critical' ? 'bg-red-500/10 text-red-400' :
-                                    issue.severity === 'high' ? 'bg-orange-500/10 text-orange-400' :
-                                        issue.severity === 'medium' ? 'bg-yellow-500/10 text-yellow-400' :
-                                            'bg-slate-500/10 text-slate-400'
+                                issue.severity === 'high' ? 'bg-orange-500/10 text-orange-400' :
+                                    issue.severity === 'medium' ? 'bg-yellow-500/10 text-yellow-400' :
+                                        'bg-slate-500/10 text-slate-400'
                                 }`}>
                                 {issue.severity.toUpperCase()}
                             </span>
@@ -85,10 +85,16 @@ export function HistoryTab() {
             </div>
 
             {history.length === 0 ? (
-                <div className="flex flex-col items-center gap-3 py-8">
-                    <span className="text-3xl opacity-30">📋</span>
-                    <p className="text-xs text-slate-500">No diagnoses yet</p>
-                    <p className="text-[10px] text-slate-600">Go to Diagnose tab and AX a page</p>
+                <div className="flex flex-col items-center justify-center gap-4 py-12 px-6 h-full text-center">
+                    <div className="w-16 h-16 rounded-2xl bg-slate-800/50 border border-slate-700 shadow-inner flex items-center justify-center">
+                        <span className="text-3xl opacity-50 drop-shadow-md">📋</span>
+                    </div>
+                    <div>
+                        <p className="text-sm font-semibold text-white">No diagnoses yet</p>
+                        <p className="text-xs text-slate-400 mt-1 max-w-[200px] leading-relaxed">
+                            Run your first diagnosis on any page to see the AI report here.
+                        </p>
+                    </div>
                 </div>
             ) : (
                 <div className="flex flex-col gap-2">

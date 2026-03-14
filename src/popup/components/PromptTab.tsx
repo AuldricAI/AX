@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { PromptReport } from '../../lib/types';
 import { marked } from 'marked';
+import { SkeletonLoader } from './SkeletonLoader';
 
 interface Props {
     hasApiKey: boolean;
@@ -92,12 +93,11 @@ export function PromptTab({ hasApiKey }: Props) {
 
             {/* Loading State */}
             {isLoading && (
-                <div className="flex flex-col items-center gap-3 py-12">
-                    <div className="w-10 h-10 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin shadow-[0_0_10px_rgba(99,102,241,0.5)]" />
-                    <div className="text-center">
-                        <p className="text-sm font-medium text-white">Crafting Prompt...</p>
-                        <p className="text-xs text-slate-400 mt-1">Analysing page state and user intent...</p>
-                    </div>
+                <div className="pt-8">
+                    <SkeletonLoader
+                        message="Crafting Prompt..."
+                        subMessage="Analysing page state and user intent..."
+                    />
                 </div>
             )}
 

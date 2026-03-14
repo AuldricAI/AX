@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { marked } from 'marked';
 import { formatMarkdown } from '../../lib/formatters';
 import type { DiagnosticReport } from '../../lib/types';
+import { SkeletonLoader } from './SkeletonLoader';
 
 interface Props {
     hasApiKey: boolean;
@@ -82,13 +83,10 @@ export function DiagnoseTab({ hasApiKey, onGoToSettings }: Props) {
 
             {/* Loading State */}
             {isLoading && (
-                <div className="flex flex-col items-center gap-3 py-8">
-                    <div className="w-10 h-10 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-                    <div className="text-center">
-                        <p className="text-sm text-white">Analysing page...</p>
-                        <p className="text-xs text-slate-500 mt-1">This can take a few seconds while the AI reads and diagnoses the page.</p>
-                    </div>
-                </div>
+                <SkeletonLoader
+                    message="Analysing page..."
+                    subMessage="This can take a few seconds while the AI reads and diagnoses the page."
+                />
             )}
 
             {/* Error */}
