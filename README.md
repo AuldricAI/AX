@@ -54,12 +54,11 @@ npm run build
 
 | Variable | Required | Description |
 |:---------|:---------|:------------|
-| `VITE_CLERK_PUBLISHABLE_KEY` | No | Clerk publishable key for AX hosted mode (sign-in). Leave blank for BYOK-only. |
 | `VITE_AX_API_BASE` | No | Backend API URL for AX hosted mode. Default: `https://api.auldric.com` |
 
-**BYOK mode (no Clerk needed):** Leave `VITE_CLERK_PUBLISHABLE_KEY` blank. The extension runs in Bring-Your-Own-Key mode — enter your LLM API key directly in Settings.
+**BYOK mode:** The extension runs in Bring-Your-Own-Key mode — enter your LLM API key directly in Settings.
 
-**AX hosted mode:** Set `VITE_CLERK_PUBLISHABLE_KEY` to enable sign-in via Clerk. Users get access to AX's built-in AI key without configuring their own.
+**AX hosted mode:** Users get access to AX's built-in AI key without configuring their own.
 
 ## Configuration
 

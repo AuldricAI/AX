@@ -17,7 +17,6 @@ AX does **not** collect browsing history, track which pages you visit, monitor c
 ## Where Your Data Goes
 
 - **Your chosen LLM provider only.** When you trigger a diagnosis, the captured page state is sent to the LLM API you configured (DeepSeek, OpenRouter, Vercel AI Gateway, or a custom endpoint). AX never sends your data anywhere else.
-- **Authentication (optional).** If you sign in via Clerk, authentication tokens are exchanged with Clerk's servers solely for session management.
 
 ## What's Stored Locally
 
@@ -32,7 +31,6 @@ The following is stored on your device using `chrome.storage.local` and **never 
 | Service | Purpose | Data shared |
 |:--------|:--------|:------------|
 | Your LLM provider (user-configured) | AI diagnostic analysis | Page state snapshot |
-| Clerk (optional) | User authentication | Email, auth tokens |
 
 ## Data Selling / Sharing
 
