@@ -2,7 +2,7 @@
 // Message hub: captures state via content script, calls LLM, stores results
 
 import { callLLM, estimateCost } from '../lib/llm';
-import { SYSTEM_PROMPT, buildUserPrompt, PROMPT_BUILDER_SYSTEM, buildPromptBuilderUserPrompt } from '../lib/prompts';
+import { SYSTEM_PROMPT, buildUserPrompt, PROMPT_BUILDER_SYSTEM, buildPromptBuilderUserPrompt, SITE_AUDIT_SYSTEM, buildSiteAuditUserPrompt } from '../lib/prompts';
 import { formatMarkdown } from '../lib/formatters';
 import type { AXSettings, DiagnosticCapture, DiagnosticReport, DiagnosticIssue, LLMSettings, PromptReport } from '../lib/types';
 
@@ -13,11 +13,10 @@ const AX_API_BASE = import.meta.env.VITE_AX_API_BASE || 'https://api.auldric.com
 // ─── Settings ─────────────────────────────────────────────────────────
 
 const DEFAULT_SETTINGS: AXSettings = {
-    mode: 'ax',
     llm: {
-        provider: 'vercel',
+        provider: 'custom',
         apiKey: '',
-        model: 'zai/glm-4.7-flashx',
+        model: '',
     },
     features: {
         autoCaptureNetwork: true,
@@ -119,9 +118,12 @@ async function handleSpiderActiveTab() {
 
 async function handleBatchScan(payload: { urls: string[] }) {
     const { urls } = payload;
+    const settings = await getSettings();
     const results = [];
+    const total = urls.length;
 
-    for (const url of urls) {
+    for (let i = 0; i < urls.length; i++) {
+        const url = urls[i];
         try {
             // 1. Create a background tab
             const tab = await chrome.tabs.create({ url, active: false });
@@ -158,7 +160,74 @@ async function handleBatchScan(payload: { urls: string[] }) {
             await chrome.tabs.remove(tab.id);
 
             if (captureResult?.success) {
-                results.push(captureResult.data);
+                const capture: DiagnosticCapture = captureResult.data;
+                const issues = buildLocalIssues(capture);
+
+                // ── AI Diagnosis ──────────────────────────────────────
+                // Broadcast progress: diagnosing with AI
+                chrome.runtime.sendMessage({ type: 'BATCH_SCAN_PROGRESS', data: { index: i, total, url, stage: 'diagnosing' } }).catch(() => { });
+                let diagnosis = '';
+                try {
+                    console.log(`[Batch Scan] Calling AI for ${url}...`);
+                    const trimmedCapture = {
+                        url: capture.url,
+                        title: capture.title,
+                        console: capture.console.slice(0, 20),
+                        network: capture.network.filter(n => n.status >= 400 || n.duration > 3000 || n.error).slice(0, 20),
+                        dom: {
+                            meta: capture.dom.meta,
+                            headings: capture.dom.headings.slice(0, 15),
+                            images: capture.dom.images.filter(i => !i.hasAlt || !i.src).slice(0, 10),
+                            structuredData: capture.dom.structuredData.length > 0 ? 'present' : 'missing',
+                            forms: capture.dom.forms,
+                            pageContent: capture.dom.pageContent.substring(0, 30000),
+                            selectionText: capture.dom.selectionText.substring(0, 10000),
+                            totalElements: capture.dom.totalElements,
+                        },
+                        secrets: capture.secrets,
+                        performance: capture.performance,
+                        projectSpecs: settings.projectSpecs || [],
+                        projectStage: settings.projectStage,
+                    };
+
+                    if (settings.llm.apiKey) {
+                        const llmResult = await callLLM(
+                            settings.llm,
+                            SYSTEM_PROMPT,
+                            buildUserPrompt(JSON.stringify(trimmedCapture, null, 2)),
+                        );
+                        diagnosis = llmResult.content;
+                    } else {
+                        console.warn(`[Batch Scan] No API key provided for ${url}`);
+                    }
+                    console.log(`[Batch Scan] AI diagnosis received for ${url} (${diagnosis.length} chars)`);
+                } catch (aiErr) {
+                    console.warn(`[Batch Scan] AI diagnosis failed for ${url}, saving heuristics only:`, aiErr);
+                }
+
+                const summary = diagnosis || `Batch Scan: Captured ${capture.console.length} console entries, ${capture.network.length} network requests, ${capture.secrets.length} exposed secrets.`;
+
+                const report: DiagnosticReport = {
+                    capture,
+                    diagnosis,
+                    issues,
+                    summary,
+                    timestamp: Date.now(),
+                };
+
+                await saveToHistory(report);
+                // await pushToMcp(capture);
+
+                results.push({
+                    url,
+                    diagnosis,
+                    consoleErrors: capture.console.filter((c: any) => c.level === 'error').length,
+                    networkErrors: capture.network.filter((n: any) => n.status >= 400).length,
+                    secrets: capture.secrets.length
+                });
+                // Broadcast progress: done
+                chrome.runtime.sendMessage({ type: 'BATCH_SCAN_PROGRESS', data: { index: i, total, url, stage: 'done' } }).catch(() => { });
+                console.log(`[Batch Scan] Finished ${url}`);
             } else {
                 results.push({ url, error: 'Capture failed or timed out' });
             }
@@ -169,14 +238,41 @@ async function handleBatchScan(payload: { urls: string[] }) {
         }
     }
 
-    // TODO: In the future, send 'results' array to the AI for a multi-page diagnosis.
-    // For now, return the raw data back to the UI.
-    return { success: true, count: results.length, data: results };
+    // ── Combined Site Audit ────────────────────────────────────────────
+    // Aggregate all per-page diagnoses into a single prompt for a unified audit
+    let combinedSummary = '';
+    const pageDiagnoses = results
+        .filter((r: any) => !r.error)
+        .map((r: any) => r.diagnosis || `Page: ${r.url} — No AI diagnosis available`)
+        .filter((d: string) => d && d.length > 0);
+
+    if (pageDiagnoses.length > 0) {
+        try {
+            chrome.runtime.sendMessage({ type: 'BATCH_SCAN_PROGRESS', data: { index: urls.length - 1, total, url: 'all', stage: 'summarising' } }).catch(() => { });
+            console.log(`[Batch Scan] Generating combined site audit from ${pageDiagnoses.length} diagnoses...`);
+
+            const auditPromptInput = pageDiagnoses.map((d: string, i: number) => `--- Page ${i + 1} ---\n${d}`).join('\n\n');
+
+            if (settings.llm.apiKey) {
+                const llmResult = await callLLM(
+                    settings.llm,
+                    SITE_AUDIT_SYSTEM,
+                    buildSiteAuditUserPrompt(auditPromptInput),
+                );
+                combinedSummary = llmResult.content;
+            }
+            console.log(`[Batch Scan] Site audit generated (${combinedSummary.length} chars)`);
+        } catch (auditErr) {
+            console.warn('[Batch Scan] Failed to generate combined site audit:', auditErr);
+        }
+    }
+
+    return { success: true, count: results.length, data: results, combinedSummary };
 }
 
 // ─── Capture & Diagnose ───────────────────────────────────────────────
 
-async function handleCaptureAndDiagnose(payload?: { mode?: 'ax' | 'byok'; clerkToken?: string }) {
+async function handleCaptureAndDiagnose() {
     // 1. Get active tab
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (!tab?.id) throw new Error('No active tab');
@@ -198,7 +294,6 @@ async function handleCaptureAndDiagnose(payload?: { mode?: 'ax' | 'byok'; clerkT
 
     const capture: DiagnosticCapture = captureResult.data;
     const settings = await getSettings();
-    const mode = payload?.mode || settings.mode || 'ax';
 
     // 3. Trim capture data to keep payload size low
     const trimmedCapture = {
@@ -227,74 +322,34 @@ async function handleCaptureAndDiagnose(payload?: { mode?: 'ax' | 'byok'; clerkT
     let content: string;
     let usage = { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
 
-    if (mode === 'ax') {
-        // ─── AX Mode: Clerk JWT → Backend Proxy ───────────────────────
-        const token = payload?.clerkToken;
-        if (!token) {
-            // Return capture without AI diagnosis
-            const report: DiagnosticReport = {
-                capture,
-                diagnosis: '',
-                issues: buildLocalIssues(capture),
-                summary: `Captured ${capture.console.length} console entries, ${capture.network.length} network requests, ${capture.secrets.length} exposed secrets. Please sign in for AI-powered diagnosis.`,
-                timestamp: Date.now(),
-            };
-            await saveToHistory(report);
-            return report;
-        }
+    if (!settings.llm.apiKey) {
+        throw new Error('No API key configured. Add one in Settings.');
+    }
 
-        const response = await fetch(`${AX_API_BASE}/api/ax/diagnose`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-                systemPrompt: SYSTEM_PROMPT,
-                userMessage: buildUserPrompt(JSON.stringify(trimmedCapture, null, 2))
-            }),
-        });
+    const systemAndUserPrompt = SYSTEM_PROMPT + buildUserPrompt(JSON.stringify(trimmedCapture, null, 2));
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Proxy API error (${response.status}): ${errorText}`);
-        }
+    const llmResult = await callLLM(
+        settings.llm,
+        SYSTEM_PROMPT,
+        buildUserPrompt(JSON.stringify(trimmedCapture, null, 2)),
+    );
+    content = llmResult.content;
+    usage = llmResult.usage;
 
-        const data = await response.json();
-        content = data.content;
-        usage = data.usage || usage;
-
-    } else {
-        // ─── BYOK Mode: Direct LLM Call ───────────────────────────────
-        if (!settings.llm.apiKey) {
-            throw new Error('No API key configured. Add one in Settings.');
-        }
-
-        const systemAndUserPrompt = SYSTEM_PROMPT + buildUserPrompt(JSON.stringify(trimmedCapture, null, 2));
-
-        const llmResult = await callLLM(
-            settings.llm,
-            SYSTEM_PROMPT,
-            buildUserPrompt(JSON.stringify(trimmedCapture, null, 2)),
-        );
-        content = llmResult.content;
-        usage = llmResult.usage;
-
-        // If usage is 0 (some providers might not return it), estimate it
-        if (!usage || (usage.prompt_tokens === 0 && usage.completion_tokens === 0)) {
-            const promptWords = systemAndUserPrompt.split(/\s+/).length;
-            const completionWords = content.split(/\s+/).length;
-            usage = {
-                prompt_tokens: Math.ceil(promptWords * 1.33),
-                completion_tokens: Math.ceil(completionWords * 1.33),
-                total_tokens: Math.ceil((promptWords + completionWords) * 1.33)
-            };
-        }
+    // If usage is 0 (some providers might not return it), estimate it
+    if (!usage || (usage.prompt_tokens === 0 && usage.completion_tokens === 0)) {
+        const promptWords = systemAndUserPrompt.split(/\s+/).length;
+        const completionWords = content.split(/\s+/).length;
+        usage = {
+            prompt_tokens: Math.ceil(promptWords * 1.33),
+            completion_tokens: Math.ceil(completionWords * 1.33),
+            total_tokens: Math.ceil((promptWords + completionWords) * 1.33)
+        };
     }
 
     // 4. Build report
     const localIssues = buildLocalIssues(capture);
-    const cost = estimateCost(mode === 'ax' ? 'vercel' : settings.llm.provider, usage);
+    const cost = estimateCost(settings.llm.provider, usage);
 
     const report: DiagnosticReport = {
         capture,
@@ -310,7 +365,7 @@ async function handleCaptureAndDiagnose(payload?: { mode?: 'ax' | 'byok'; clerkT
 
 // ─── Generate Prompt ──────────────────────────────────────────────────
 
-async function handleGeneratePrompt(payload: { intent: string; mode?: 'ax' | 'byok'; clerkToken?: string }): Promise<PromptReport> {
+async function handleGeneratePrompt(payload: { intent: string; }): Promise<PromptReport> {
     // 1. Get active tab
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (!tab?.id) throw new Error('No active tab');
@@ -327,7 +382,6 @@ async function handleGeneratePrompt(payload: { intent: string; mode?: 'ax' | 'by
 
     const capture: DiagnosticCapture = captureResult.data;
     const settings = await getSettings();
-    const mode = payload.mode || settings.mode || 'ax';
 
     // 3. Trim capture data
     const trimmedCapture = {
@@ -345,58 +399,30 @@ async function handleGeneratePrompt(payload: { intent: string; mode?: 'ax' | 'by
 
     let content: string;
 
-    if (mode === 'ax') {
-        // ─── AX Mode: Clerk JWT → Backend Proxy ───────────────────────
-        const token = payload.clerkToken;
-        if (!token) throw new Error('Sign in required for AX prompt builder.');
+    if (!settings.llm.apiKey) throw new Error('No API key configured. Add one in Settings.');
 
-        const response = await fetch(`${AX_API_BASE}/api/ax/prompt`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-                systemPrompt: PROMPT_BUILDER_SYSTEM,
-                userMessage: buildPromptBuilderUserPrompt(payload.intent, JSON.stringify(trimmedCapture, null, 2))
-            }),
-        });
+    const systemAndUserPrompt = PROMPT_BUILDER_SYSTEM + buildPromptBuilderUserPrompt(payload.intent, JSON.stringify(trimmedCapture, null, 2));
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Proxy API error (${response.status}): ${errorText}`);
-        }
+    const llmResult = await callLLM(
+        settings.llm,
+        PROMPT_BUILDER_SYSTEM,
+        buildPromptBuilderUserPrompt(payload.intent, JSON.stringify(trimmedCapture, null, 2)),
+    );
+    content = llmResult.content;
 
-        const data = await response.json();
-        content = data.content;
-
-    } else {
-        // ─── BYOK Mode: Direct LLM Call ───────────────────────────────
-        if (!settings.llm.apiKey) throw new Error('No API key configured. Add one in Settings.');
-
-        const systemAndUserPrompt = PROMPT_BUILDER_SYSTEM + buildPromptBuilderUserPrompt(payload.intent, JSON.stringify(trimmedCapture, null, 2));
-
-        const llmResult = await callLLM(
-            settings.llm,
-            PROMPT_BUILDER_SYSTEM,
-            buildPromptBuilderUserPrompt(payload.intent, JSON.stringify(trimmedCapture, null, 2)),
-        );
-        content = llmResult.content;
-
-        // Estimate tokens and log the cost for open source users
-        let usage = llmResult.usage;
-        if (!usage || (usage.prompt_tokens === 0 && usage.completion_tokens === 0)) {
-            const promptWords = systemAndUserPrompt.split(/\s+/).length;
-            const completionWords = content.split(/\s+/).length;
-            usage = {
-                prompt_tokens: Math.ceil(promptWords * 1.33),
-                completion_tokens: Math.ceil(completionWords * 1.33),
-                total_tokens: Math.ceil((promptWords + completionWords) * 1.33)
-            };
-        }
-        const cost = estimateCost(settings.llm.provider, usage);
-        console.log(`[AX Prompt] Estimated Token Usage: ${usage.total_tokens} tokens (Cost: ${cost})`);
+    // Estimate tokens and log the cost for open source users
+    let usage = llmResult.usage;
+    if (!usage || (usage.prompt_tokens === 0 && usage.completion_tokens === 0)) {
+        const promptWords = systemAndUserPrompt.split(/\s+/).length;
+        const completionWords = content.split(/\s+/).length;
+        usage = {
+            prompt_tokens: Math.ceil(promptWords * 1.33),
+            completion_tokens: Math.ceil(completionWords * 1.33),
+            total_tokens: Math.ceil((promptWords + completionWords) * 1.33)
+        };
     }
+    const cost = estimateCost(settings.llm.provider, usage);
+    console.log(`[AX Prompt] Estimated Token Usage: ${usage.total_tokens} tokens (Cost: ${cost})`);
 
     return {
         intent: payload.intent,

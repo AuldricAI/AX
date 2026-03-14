@@ -1,5 +1,5 @@
 // AX — Build Script
-// 4-pass build: popup + signin, service worker, content script
+// 3-pass build: popup, service worker, content script
 
 import { build } from 'vite';
 import react from '@vitejs/plugin-react';
@@ -94,11 +94,7 @@ await build({
 console.log('\n📋 Copying manifest & icons...');
 copyFileSync(resolve(root, 'manifest.json'), resolve(root, 'dist/manifest.json'));
 
-// Copy global polyfill required by Clerk
-const polyfillSrc = resolve(root, 'global-polyfill.js');
-if (existsSync(polyfillSrc)) {
-    copyFileSync(polyfillSrc, resolve(root, 'dist/global-polyfill.js'));
-}
+
 
 const iconsDir = resolve(root, 'dist/icons');
 if (!existsSync(iconsDir)) mkdirSync(iconsDir, { recursive: true });

@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useAuthSafe, CLERK_ENABLED } from '../hooks/useClerkSafe';
 import type { AXSettings, LLMSettings, ProjectSpec } from '../../lib/types';
 
 interface Props {
@@ -8,63 +7,35 @@ interface Props {
 }
 
 export function SettingsTab({ settings, onSave }: Props) {
-    const { signOut, isSignedIn } = useAuthSafe();
-    const [mode, setMode] = useState<'ax' | 'byok'>(CLERK_ENABLED ? (settings.mode || 'ax') : 'byok');
-    const [ownKey, setOwnKey] = useState(settings.mode === 'byok' ? settings.llm.apiKey : '');
+    const [ownKey, setOwnKey] = useState(settings.llm.apiKey || '');
     const [ownEndpoint, setOwnEndpoint] = useState(settings.llm.endpoint || '');
-    const [ownModel, setOwnModel] = useState(settings.mode === 'byok' ? settings.llm.model : '');
+    const [ownModel, setOwnModel] = useState(settings.llm.model || '');
     const [projectSpecs, setProjectSpecs] = useState<ProjectSpec[]>(settings.projectSpecs || []);
     const [projectStage, setProjectStage] = useState<'early-dev' | 'pre-launch' | 'production'>(settings.projectStage || 'early-dev');
     const [saved, setSaved] = useState(false);
 
     useEffect(() => {
-        setMode(settings.mode || 'ax');
-        if (settings.mode === 'byok') {
-            setOwnKey(settings.llm.apiKey);
-            setOwnModel(settings.llm.model);
-            setOwnEndpoint(settings.llm.endpoint || '');
-        }
+        setOwnKey(settings.llm.apiKey);
+        setOwnModel(settings.llm.model);
+        setOwnEndpoint(settings.llm.endpoint || '');
         setProjectStage(settings.projectStage || 'early-dev');
         setProjectSpecs(settings.projectSpecs || []);
     }, [settings]);
 
     const handleSave = () => {
-        if (mode === 'ax') {
-            onSave({
-                ...settings,
-                mode: 'ax',
-                llm: { provider: 'vercel', apiKey: '', model: 'zai/glm-4.7-flashx' },
-                projectStage,
-                projectSpecs,
-            });
-        } else {
-            onSave({
-                ...settings,
-                mode: 'byok',
-                llm: {
-                    provider: 'custom',
-                    apiKey: ownKey,
-                    model: ownModel,
-                    endpoint: ownEndpoint,
-                },
-                projectSpecs,
-            });
-        }
-        setSaved(true);
-        setTimeout(() => setSaved(false), 2000);
-    };
 
-    const handleDisconnect = async () => {
-        if (isSignedIn) {
-            await signOut();
-        }
         onSave({
             ...settings,
-            mode: 'ax',
-            llm: { provider: 'vercel', apiKey: '', model: 'zai/glm-4.7-flashx' },
-            projectStage,
+            llm: {
+                provider: 'custom',
+                apiKey: ownKey,
+                model: ownModel,
+                endpoint: ownEndpoint,
+            },
             projectSpecs,
         });
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
     };
 
     const addSpec = () => {
@@ -88,35 +59,8 @@ export function SettingsTab({ settings, onSave }: Props) {
                 </p>
             </div>
 
-            {/* Mode Toggle — only shown when Clerk is available */}
-            {CLERK_ENABLED && (
-                <div className="flex gap-2">
-                    <button
-                        onClick={() => setMode('ax')}
-                        className={`flex-1 py-2.5 px-3 rounded-lg text-xs font-medium transition-all border ${mode === 'ax'
-                            ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/40'
-                            : 'bg-slate-800/30 text-slate-400 border-slate-700/30 hover:border-slate-600/50'
-                            }`}
-                    >
-                        <span className="block text-sm mb-0.5">✨ Use AX's key</span>
-                        <span className="block text-[10px] text-slate-500">Works instantly, no setup</span>
-                    </button>
-                    <button
-                        onClick={() => setMode('byok')}
-                        className={`flex-1 py-2.5 px-3 rounded-lg text-xs font-medium transition-all border ${mode === 'byok'
-                            ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/40'
-                            : 'bg-slate-800/30 text-slate-400 border-slate-700/30 hover:border-slate-600/50'
-                            }`}
-                    >
-                        <span className="block text-sm mb-0.5">🔑 Use your own key</span>
-                        <span className="block text-[10px] text-slate-500">Bring your own API key</span>
-                    </button>
-                </div>
-            )}
-
-            {/* Own Key Fields */}
-            {mode === 'byok' && (
-                <div className="flex flex-col gap-3">
+            {/* API Key Fields */}
+            <div className="flex flex-col gap-3">
                     <div className="space-y-1.5">
                         <label className="text-xs text-slate-400">API Key</label>
                         <input
@@ -209,23 +153,6 @@ export function SettingsTab({ settings, onSave }: Props) {
                         </div>
                     </div>
                 </div>
-            )}
-
-            {/* AX Key Info */}
-            {mode === 'ax' && (
-                <div className="p-3 rounded-lg bg-indigo-500/5 border border-indigo-500/10">
-                    {isSignedIn ? (
-                        <p className="text-[11px] text-indigo-400/80 leading-relaxed">
-                            ✅ You're signed in and using AX's built-in AI. No configuration needed — just head to
-                            the <strong>Diagnose</strong> tab and start debugging.
-                        </p>
-                    ) : (
-                        <p className="text-[11px] text-amber-400/80 leading-relaxed">
-                            🔐 Sign in with your AX account to use the built-in AI key. Use the Sign In button on the Welcome screen.
-                        </p>
-                    )}
-                </div>
-            )}
 
             {/* Project Specifications */}
             <div className="pt-4 border-t border-slate-700/50 mt-2">
@@ -288,13 +215,6 @@ export function SettingsTab({ settings, onSave }: Props) {
                         }`}
                 >
                     {saved ? '✅ Saved!' : 'Save Settings'}
-                </button>
-
-                <button
-                    onClick={handleDisconnect}
-                    className="w-full py-2 rounded-lg text-xs font-medium text-slate-400 bg-slate-800/50 hover:bg-red-500/10 hover:text-red-400 border border-transparent hover:border-red-500/20 active:scale-[0.98] transition-all duration-200"
-                >
-                    Disconnect (Log Out)
                 </button>
             </div>
         </div>

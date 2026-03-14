@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import type { AXSettings } from '../../lib/types';
 
 const DEFAULT_SETTINGS: AXSettings = {
-    mode: 'ax',
     llm: {
         provider: 'deepseek',
         apiKey: '',
@@ -36,8 +35,7 @@ export function useSettings() {
         await chrome.runtime.sendMessage({ type: 'SAVE_SETTINGS', payload: newSettings });
     }, []);
 
-    const hasApiKey = settings.mode === 'byok' && Boolean(settings.llm.apiKey);
-    const isUsingAxKey = settings.mode === 'ax';
+    const hasApiKey = Boolean(settings.llm.apiKey);
 
-    return { settings, saveSettings, isLoaded, hasApiKey, isUsingAxKey };
+    return { settings, saveSettings, isLoaded, hasApiKey };
 }

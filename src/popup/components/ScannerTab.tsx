@@ -1,6 +1,18 @@
 import { useState, useEffect } from 'react';
+import { marked } from 'marked';
 
-export function ScannerTab() {
+interface Props {
+    hasApiKey: boolean;
+}
+
+interface ScanProgress {
+    index: number;
+    total: number;
+    url: string;
+    stage: 'capturing' | 'diagnosing' | 'done' | 'summarising';
+}
+
+export function ScannerTab({ hasApiKey }: Props) {
     const [urls, setUrls] = useState<string[]>([]);
     const [isSpidering, setIsSpidering] = useState(false);
     const [isScanning, setIsScanning] = useState(false);
@@ -34,7 +46,10 @@ export function ScannerTab() {
         try {
             const response = await chrome.runtime.sendMessage({
                 type: 'TRIGGER_BATCH_SCAN',
-                payload: { urls }
+                payload: {
+                    urls,
+                    mode: 'byok',
+                }
             });
 
             if (response?.error) {
