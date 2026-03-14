@@ -95,7 +95,6 @@ export interface ProjectSpec {
 }
 
 export interface AXSettings {
-    mode: 'ax' | 'byok';
     llm: LLMSettings;
     features: {
         autoCaptureNetwork: boolean;
@@ -112,9 +111,11 @@ export type AXMessage =
     | { type: 'CAPTURE_STATE'; payload?: undefined }
     | { type: 'TRIGGER_BATCH_SCAN'; payload: { urls: string[] } }
     | { type: 'STATE_CAPTURED'; payload: any }
-    | { type: 'CAPTURE_AND_DIAGNOSE'; payload?: { clerkToken?: string } }
+    | { type: 'CAPTURE_AND_DIAGNOSE'; payload?: undefined }
     | { type: 'DIAGNOSIS_COMPLETE'; payload: DiagnosticReport }
     | { type: 'DIAGNOSIS_ERROR'; payload: { error: string } }
     | { type: 'GET_SETTINGS'; payload?: undefined }
     | { type: 'SAVE_SETTINGS'; payload: AXSettings }
-    | { type: 'GENERATE_PROMPT'; payload: { intent: string; clerkToken?: string } };
+    | { type: 'GENERATE_PROMPT'; payload: { intent: string } }
+    | { type: 'GET_PROMPT_HISTORY'; payload?: undefined }
+    | { type: 'CLEAR_PROMPT_HISTORY'; payload?: undefined };
