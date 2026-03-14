@@ -1,15 +1,12 @@
 import { useState } from 'react';
-import { useAuthSafe } from '../hooks/useClerkSafe';
 import type { PromptReport } from '../../lib/types';
 import { marked } from 'marked';
 
 interface Props {
-    isUsingAxKey: boolean;
     hasApiKey: boolean;
 }
 
-export function PromptTab({ isUsingAxKey, hasApiKey }: Props) {
-    const { getToken, isSignedIn } = useAuthSafe();
+export function PromptTab({ hasApiKey }: Props) {
     const [isLoading, setIsLoading] = useState(false);
     const [intent, setIntent] = useState('');
     const [report, setReport] = useState<PromptReport | null>(null);
@@ -24,21 +21,15 @@ export function PromptTab({ isUsingAxKey, hasApiKey }: Props) {
         setReport(null);
 
         try {
-            if (isUsingAxKey && !isSignedIn) {
-                throw new Error('Please sign in to use AX prompt builder.');
-            }
-            if (!isUsingAxKey && !hasApiKey) {
+            if (!hasApiKey) {
                 throw new Error('Please add an API key in Settings.');
             }
-
-            const clerkToken = isUsingAxKey ? await getToken() : null;
 
             const result = await chrome.runtime.sendMessage({
                 type: 'GENERATE_PROMPT',
                 payload: {
                     intent,
-                    mode: isUsingAxKey ? 'ax' : 'byok',
-                    clerkToken: clerkToken ?? undefined,
+                    mode: 'byok',
                 },
             });
             if (result?.error) {

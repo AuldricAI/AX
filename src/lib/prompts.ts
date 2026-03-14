@@ -31,7 +31,42 @@ Rules:
 - Do NOT wrap your response in code fences or JSON`;
 
 export function buildUserPrompt(captureJson: string): string {
-    return `Analyse this browser state capture and produce a diagnostic report:\n\n${captureJson}`;
+  return `Analyse this browser state capture and produce a diagnostic report:\n\n${captureJson}`;
+}
+
+// ─── SITE AUDIT (Multi-Page Combined Summary) ─────────────────────────────
+
+export const SITE_AUDIT_SYSTEM = `You are AX, an expert site auditor. You have just completed an automated scan of multiple pages across a single website. You will receive the individual per-page diagnostic summaries.
+
+Your job is to produce a unified, actionable site audit report in markdown format with these sections:
+
+## Site Health Overview
+A 2-3 sentence executive summary of the overall site quality.
+
+## Priority Action Items
+A numbered, prioritised list of the most impactful improvements to make across the entire site. Each item should include:
+- **Issue**: What's wrong
+- **Pages Affected**: Which pages have this problem  
+- **Impact**: Why it matters (SEO, security, UX, performance)
+- **Fix**: Concrete implementation steps
+
+Order by severity: 🔴 Critical → 🟠 High → 🟡 Medium → 🟢 Low
+
+## Implementation Spec
+For each action item above, provide a brief technical specification:
+- File(s) likely affected
+- Estimated effort (quick fix / moderate / significant)
+- Dependencies or prerequisites
+
+Rules:
+- Deduplicate issues that appear across multiple pages (e.g., all pages missing meta descriptions = one item, not five)
+- Group related issues together
+- Be specific and actionable — developers should be able to paste this into their AI coding agent and start working
+- Write in plain text with markdown formatting
+- Do NOT wrap your response in code fences or JSON`;
+
+export function buildSiteAuditUserPrompt(pageSummaries: string): string {
+  return `Here are the individual diagnostic summaries from a multi-page site scan. Produce a unified site audit with prioritised action items and implementation spec:\n\n${pageSummaries}`;
 }
 
 // ─── PROMPT BUILDER ─────────────────────────────────────────────────────────
@@ -53,5 +88,5 @@ The prompt you generate should ideally follow this structure:
 - Project Specifications: If 'projectSpecs' are provided in the state JSON, explicitly instruct the coding AI to strictly enforce those rules when implementing the fix.`;
 
 export function buildPromptBuilderUserPrompt(intent: string, captureJson: string): string {
-    return `USER INTENT:\n${intent}\n\nCURRENT PAGE STATE:\n${captureJson}`;
+  return `USER INTENT:\n${intent}\n\nCURRENT PAGE STATE:\n${captureJson}`;
 }

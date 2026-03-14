@@ -1,17 +1,14 @@
 import { useState } from 'react';
-import { useAuthSafe } from '../hooks/useClerkSafe';
 import { marked } from 'marked';
 import { formatMarkdown } from '../../lib/formatters';
 import type { DiagnosticReport } from '../../lib/types';
 
 interface Props {
     hasApiKey: boolean;
-    isUsingAxKey: boolean;
     onGoToSettings: () => void;
 }
 
-export function DiagnoseTab({ hasApiKey, isUsingAxKey, onGoToSettings }: Props) {
-    const { getToken, isSignedIn } = useAuthSafe();
+export function DiagnoseTab({ hasApiKey, onGoToSettings }: Props) {
     const [isLoading, setIsLoading] = useState(false);
     const [report, setReport] = useState<DiagnosticReport | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -23,21 +20,14 @@ export function DiagnoseTab({ hasApiKey, isUsingAxKey, onGoToSettings }: Props) 
         setReport(null);
 
         try {
-            // AX mode: need Clerk token. BYOK mode: key is in settings.
-            if (isUsingAxKey && !isSignedIn) {
-                throw new Error('Please sign in to use AX diagnostics.');
-            }
-            if (!isUsingAxKey && !hasApiKey) {
+            if (!hasApiKey) {
                 throw new Error('Please add an API key in Settings.');
             }
-
-            const clerkToken = isUsingAxKey ? await getToken() : null;
 
             const result = await chrome.runtime.sendMessage({
                 type: 'CAPTURE_AND_DIAGNOSE',
                 payload: {
-                    mode: isUsingAxKey ? 'ax' : 'byok',
-                    clerkToken: clerkToken ?? undefined,
+                    mode: 'byok',
                 },
             });
             if (result?.error) {
@@ -79,7 +69,7 @@ export function DiagnoseTab({ hasApiKey, isUsingAxKey, onGoToSettings }: Props) 
                     >
                         🪓 AX This Page
                     </button>
-                    {!hasApiKey && !isSignedIn && (
+                    {!hasApiKey && (
                         <button
                             onClick={onGoToSettings}
                             className="text-xs text-amber-400 hover:text-amber-300 underline underline-offset-2"

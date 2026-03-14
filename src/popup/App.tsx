@@ -1,11 +1,8 @@
 import { useState, useEffect } from 'react';
-import { UserButton } from '@clerk/chrome-extension';
-import { useAuthSafe, CLERK_ENABLED } from './hooks/useClerkSafe';
 import { DiagnoseTab } from './components/DiagnoseTab';
 import { HistoryTab } from './components/HistoryTab';
 import { SettingsTab } from './components/SettingsTab';
 import { PromptTab } from './components/PromptTab';
-import { WelcomeTab } from './components/WelcomeTab';
 import { ScannerTab } from './components/ScannerTab';
 import { Logo } from './components/Logo';
 import { useSettings } from './hooks/useSettings';
@@ -20,28 +17,21 @@ const TABS: { id: TabId; label: string; icon: string }[] = [
 ];
 
 export default function App() {
-    const { isLoaded: isClerkLoaded, isSignedIn } = useAuthSafe();
-    const { settings, saveSettings, isLoaded: isSettingsLoaded, hasApiKey, isUsingAxKey } = useSettings();
+    const { settings, saveSettings, isLoaded: isSettingsLoaded, hasApiKey } = useSettings();
     const [activeTab, setActiveTab] = useState<TabId>('prompt');
     const [showSettings, setShowSettings] = useState(false);
 
-    const isAppLoaded = isSettingsLoaded && isClerkLoaded;
-
-    // AX mode: need Clerk sign-in. BYOK mode: need own API key.
-    const isAuthed = (isUsingAxKey && isSignedIn) || hasApiKey;
-
     // Initialise tab and settings view once loaded
     useEffect(() => {
-        if (isAppLoaded) {
-            setActiveTab(isAuthed ? 'diagnose' : 'prompt');
-            // When newly authenticated, ensure we close the settings view if it was open
-            if (isAuthed && showSettings) {
+        if (isSettingsLoaded) {
+            setActiveTab(hasApiKey ? 'diagnose' : 'prompt');
+            if (hasApiKey && showSettings) {
                 setShowSettings(false);
             }
         }
-    }, [isAppLoaded, isAuthed]);
+    }, [isSettingsLoaded, hasApiKey]);
 
-    if (!isAppLoaded) {
+    if (!isSettingsLoaded) {
         return (
             <div className="min-h-[560px] w-[420px] bg-slate-950 flex items-center justify-center text-white">
                 <div className="flex flex-col items-center gap-3">
@@ -52,8 +42,9 @@ export default function App() {
         );
     }
 
-    if (!isAuthed && !showSettings) {
-        return <WelcomeTab onConnectByok={() => setShowSettings(true)} />;
+    // Force users to settings if they have no API key
+    if (!hasApiKey && !showSettings) {
+        setShowSettings(true);
     }
 
     return (
@@ -78,9 +69,7 @@ export default function App() {
                     >
                         ⚙️
                     </button>
-                    {CLERK_ENABLED && isSignedIn ? (
-                        <UserButton />
-                    ) : hasApiKey ? (
+                    {hasApiKey ? (
                         <button
                             onClick={() => setShowSettings(true)}
                             className="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-xs border border-slate-700 hover:bg-slate-700 transition-colors"
@@ -95,7 +84,7 @@ export default function App() {
             {showSettings ? (
                 <main className="flex-1 overflow-y-auto">
                     <div className="px-4 py-3 border-b border-slate-800/50 flex items-center">
-                        {isAuthed && (
+                        {hasApiKey && (
                             <button
                                 onClick={() => setShowSettings(false)}
                                 className="text-xs text-slate-400 hover:text-white"
@@ -103,7 +92,7 @@ export default function App() {
                                 ← Back
                             </button>
                         )}
-                        {!isAuthed && (
+                        {!hasApiKey && (
                             <span className="text-xs text-amber-400 font-medium ml-1">Setup Required</span>
                         )}
                     </div>
@@ -130,9 +119,9 @@ export default function App() {
 
                     {/* Tab Content */}
                     <main className="flex-1 overflow-y-auto relative">
-                        {activeTab === 'diagnose' && <DiagnoseTab hasApiKey={hasApiKey} isUsingAxKey={isUsingAxKey} onGoToSettings={() => setShowSettings(true)} />}
-                        {activeTab === 'prompt' && <PromptTab isUsingAxKey={isUsingAxKey} hasApiKey={hasApiKey} />}
-                        {activeTab === 'scanner' && <ScannerTab />}
+                        {activeTab === 'diagnose' && <DiagnoseTab hasApiKey={hasApiKey} onGoToSettings={() => setShowSettings(true)} />}
+                        {activeTab === 'prompt' && <PromptTab hasApiKey={hasApiKey} />}
+                        {activeTab === 'scanner' && <ScannerTab hasApiKey={hasApiKey} />}
                         {activeTab === 'history' && <HistoryTab />}
                     </main>
                 </>
@@ -142,8 +131,8 @@ export default function App() {
             <div className="px-4 py-1.5 border-t border-slate-800/50 shrink-0 text-[10px] text-slate-600 flex items-center justify-between">
                 <span>AX v{chrome.runtime.getManifest().version}</span>
                 <span className="flex items-center gap-1.5">
-                    <span className={`w-1.5 h-1.5 rounded-full ${isAuthed ? 'bg-indigo-400' : 'bg-slate-600'}`} />
-                    {isAuthed ? 'Ready' : isUsingAxKey ? 'Sign in required' : 'No API key'}
+                    <span className={`w-1.5 h-1.5 rounded-full ${hasApiKey ? 'bg-indigo-400' : 'bg-slate-600'}`} />
+                    {hasApiKey ? 'Ready' : 'No API key'}
                 </span>
             </div>
         </div>
