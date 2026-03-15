@@ -13,10 +13,10 @@ export function SuccessPage() {
     return (
         <div className="w-screen h-screen bg-slate-950 flex flex-col items-center justify-center p-8 text-white relative overflow-hidden">
             {/* Background Glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/20 rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-emerald-500/20 rounded-full blur-[100px] pointer-events-none" />
 
             <div className="z-10 flex flex-col items-center justify-center max-w-md text-center">
-                <div className="w-20 h-20 mb-8 rounded-3xl bg-indigo-500/10 flex items-center justify-center text-indigo-500 shadow-[0_0_30px_rgba(99,102,241,0.2)] border border-indigo-500/20">
+                <div className="w-20 h-20 mb-8 rounded-3xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 shadow-[0_0_30px_rgba(99,102,241,0.2)] border border-emerald-500/20">
                     <Logo className="w-12 h-12" />
                 </div>
 

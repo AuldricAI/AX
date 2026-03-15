@@ -45,7 +45,7 @@ export default function App() {
         return (
             <div className="min-h-[560px] w-[420px] bg-slate-950 flex items-center justify-center text-white">
                 <div className="flex flex-col items-center gap-3">
-                    <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                    <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
                     <span className="text-sm text-slate-400">Loading AX...</span>
                 </div>
             </div>
@@ -61,7 +61,7 @@ export default function App() {
             {/* Header */}
             <header className="flex items-center justify-between px-4 py-3 border-b border-slate-800/50">
                 <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.15)]">
+                    <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 shadow-[0_0_15px_rgba(99,102,241,0.15)]">
                         <Logo className="w-4 h-4" />
                     </div>
                     <div>
@@ -118,7 +118,7 @@ export default function App() {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium transition-all duration-200 ${activeTab === tab.id
-                                    ? 'text-white border-b-2 border-indigo-500 bg-indigo-500/5'
+                                    ? 'text-white border-b-2 border-emerald-500 bg-emerald-500/5'
                                     : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/30'
                                     }`}
                             >
@@ -142,7 +142,7 @@ export default function App() {
             <div className="px-4 py-1.5 border-t border-slate-800/50 shrink-0 text-[10px] text-slate-600 flex items-center justify-between">
                 <span>AX v{chrome.runtime.getManifest().version}</span>
                 <span className="flex items-center gap-1.5">
-                    <span className={`w-1.5 h-1.5 rounded-full ${isAuthed ? 'bg-indigo-400' : 'bg-slate-600'}`} />
+                    <span className={`w-1.5 h-1.5 rounded-full ${isAuthed ? 'bg-emerald-400' : 'bg-slate-600'}`} />
                     {isAuthed ? 'Ready' : isUsingAxKey ? 'Sign in required' : 'No API key'}
                 </span>
             </div>
