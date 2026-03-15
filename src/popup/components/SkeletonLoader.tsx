@@ -3,8 +3,8 @@ export function SkeletonLoader({ message, subMessage }: { message: string; subMe
         <div className="flex flex-col items-center gap-4 py-8 px-4 w-full">
             <div className="relative w-12 h-12 flex items-center justify-center">
                 {/* Glowing ring */}
-                <div className="absolute inset-0 rounded-full border-2 border-indigo-500/30 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
-                <div className="absolute inset-0 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
+                <div className="absolute inset-0 rounded-full border-2 border-emerald-500/30 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
+                <div className="absolute inset-0 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
                 <span className="text-lg animate-pulse absolute">✨</span>
             </div>
 
@@ -21,7 +21,7 @@ export function SkeletonLoader({ message, subMessage }: { message: string; subMe
                 <div className="h-2.5 bg-slate-700/50 rounded-full w-3/4 animate-pulse" />
                 <div className="h-2.5 bg-slate-700/50 rounded-full w-full animate-pulse delay-75" />
                 <div className="h-2.5 bg-slate-700/50 rounded-full w-5/6 animate-pulse delay-150" />
-                <div className="h-2.5 bg-slate-700/50 rounded-full w-1/2 animate-pulse delay-300 mt-2 text-indigo-500/20" />
+                <div className="h-2.5 bg-slate-700/50 rounded-full w-1/2 animate-pulse delay-300 mt-2 text-emerald-500/20" />
             </div>
         </div>
     );

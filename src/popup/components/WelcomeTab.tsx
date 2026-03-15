@@ -8,7 +8,7 @@ interface WelcomeTabProps {
 export function WelcomeTab({ onConnectByok }: WelcomeTabProps) {
     return (
         <div className="flex flex-col h-[560px] w-[420px] bg-slate-950 items-center justify-center p-6 text-white">
-            <div className="w-16 h-16 mb-6 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.2)]">
+            <div className="w-16 h-16 mb-6 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 shadow-[0_0_20px_rgba(99,102,241,0.2)]">
                 <Logo className="w-10 h-10" />
             </div>
 
@@ -26,14 +26,14 @@ export function WelcomeTab({ onConnectByok }: WelcomeTabProps) {
                     <>
                         <button
                             onClick={() => chrome.tabs.create({ url: chrome.runtime.getURL('popup.html#/sign-in') })}
-                            className="w-full py-2.5 px-4 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-medium hover:from-indigo-400 hover:to-purple-500 transition-all shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2"
+                            className="w-full py-2.5 px-4 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-medium hover:from-emerald-400 hover:to-teal-400 transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
                         >
                             <span>🔐</span> Sign In
                         </button>
 
                         <button
                             onClick={() => chrome.tabs.create({ url: chrome.runtime.getURL('popup.html#/sign-up') })}
-                            className="w-full py-2.5 px-4 rounded-lg border border-indigo-600/50 bg-indigo-500/10 text-indigo-300 text-sm font-medium hover:bg-indigo-500/20 hover:text-white transition-all flex items-center justify-center gap-2"
+                            className="w-full py-2.5 px-4 rounded-lg border border-indigo-600/50 bg-emerald-500/10 text-indigo-300 text-sm font-medium hover:bg-emerald-500/20 hover:text-white transition-all flex items-center justify-center gap-2"
                         >
                             <span>✨</span> Create Account
                         </button>
@@ -63,7 +63,7 @@ export function WelcomeTab({ onConnectByok }: WelcomeTabProps) {
                 href="https://github.com/AuldricAI/ax"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[10px] text-slate-600 hover:text-indigo-400 mt-2 transition-colors"
+                className="text-[10px] text-slate-600 hover:text-emerald-400 mt-2 transition-colors"
             >
                 ⭐ Star us on GitHub — open source forever
             </a>

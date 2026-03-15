@@ -67,7 +67,7 @@ export function PromptTab({ isUsingAxKey, hasApiKey }: Props) {
             {!report && !isLoading && (
                 <div className="flex flex-col gap-4 py-2">
                     <div className="text-center mb-2">
-                        <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-600/20 border border-indigo-500/30 flex items-center justify-center text-xl shadow-[0_0_15px_rgba(99,102,241,0.1)]">
+                        <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 flex items-center justify-center text-xl shadow-[0_0_15px_rgba(99,102,241,0.1)]">
                             💬
                         </div>
                         <h2 className="text-base font-semibold">Prompt Builder</h2>
@@ -82,17 +82,17 @@ export function PromptTab({ isUsingAxKey, hasApiKey }: Props) {
                             value={intent}
                             onChange={(e) => setIntent(e.target.value)}
                             placeholder="e.g. Add a dark mode toggle to the navbar..."
-                            className="w-full h-24 text-xs bg-slate-800 border border-slate-700 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all resize-none shadow-inner"
+                            className="w-full h-24 text-xs bg-slate-800 border border-slate-700 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all resize-none shadow-inner"
                         />
                     </div>
                     <button
                         onClick={handleGenerate}
                         disabled={!intent.trim()}
-                        className="ax-pulse px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-medium hover:from-indigo-400 hover:to-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-indigo-500/25"
+                        className="ax-pulse px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-medium hover:from-emerald-400 hover:to-teal-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-emerald-500/25"
                     >
                         Generate Prompt
                     </button>
-                    <div className="p-3 rounded-lg bg-indigo-500/5 border border-indigo-500/10 mt-2">
+                    <div className="p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/10 mt-2">
                         <p className="text-[11px] text-indigo-300/80 leading-relaxed text-center">
                             AX will capture the page DOM, network state, and errors, and use the LLM to write a comprehensive prompt tailored for your intent.
                         </p>
@@ -138,8 +138,8 @@ export function PromptTab({ isUsingAxKey, hasApiKey }: Props) {
                             <button
                                 onClick={handleCopy}
                                 className={`text-[10px] px-3 py-1 rounded-md font-medium transition-all ${copied
-                                    ? 'bg-indigo-500/20 text-indigo-400'
-                                    : 'bg-indigo-500 text-white hover:bg-indigo-400 shadow-lg shadow-indigo-500/20'
+                                    ? 'bg-emerald-500/20 text-emerald-400'
+                                    : 'bg-emerald-500 text-white hover:bg-emerald-400 shadow-lg shadow-emerald-500/20'
                                     }`}
                             >
                                 {copied ? '✅  Copied!' : '📋 Copy Prompt'}

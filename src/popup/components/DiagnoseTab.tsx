@@ -65,7 +65,7 @@ export function DiagnoseTab({ hasApiKey, isUsingAxKey, onGoToSettings }: Props) 
             {/* Hero / Diagnose Button */}
             {!report && !isLoading && (
                 <div className="flex flex-col items-center gap-4 py-6">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-600/20 border border-indigo-500/30 flex items-center justify-center text-2xl">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 flex items-center justify-center text-2xl">
                         ⚡
                     </div>
                     <div className="text-center">
@@ -76,7 +76,7 @@ export function DiagnoseTab({ hasApiKey, isUsingAxKey, onGoToSettings }: Props) 
                     </div>
                     <button
                         onClick={handleDiagnose}
-                        className="ax-pulse px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-medium hover:from-indigo-400 hover:to-purple-500 transition-all duration-200 shadow-lg shadow-indigo-500/25"
+                        className="ax-pulse px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-medium hover:from-emerald-400 hover:to-teal-400 transition-all duration-200 shadow-lg shadow-emerald-500/25"
                     >
                         🪓 AX This Page
                     </button>
@@ -125,8 +125,8 @@ export function DiagnoseTab({ hasApiKey, isUsingAxKey, onGoToSettings }: Props) 
                     <button
                         onClick={handleCopy}
                         className={`w-full py-2 rounded-lg text-xs font-medium transition-all ${copied
-                            ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
-                            : 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-400 hover:to-purple-500 shadow-lg shadow-indigo-500/20'
+                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                            : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-400 hover:to-teal-400 shadow-lg shadow-emerald-500/20'
                             }`}
                     >
                         {copied ? '✅ Copied!' : '📋 Copy for IDE'}

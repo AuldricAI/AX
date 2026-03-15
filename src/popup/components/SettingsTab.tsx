@@ -94,7 +94,7 @@ export function SettingsTab({ settings, onSave }: Props) {
                     <button
                         onClick={() => setMode('ax')}
                         className={`flex-1 py-2.5 px-3 rounded-lg text-xs font-medium transition-all border ${mode === 'ax'
-                            ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/40'
+                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/40'
                             : 'bg-slate-800/30 text-slate-400 border-slate-700/30 hover:border-slate-600/50'
                             }`}
                     >
@@ -104,7 +104,7 @@ export function SettingsTab({ settings, onSave }: Props) {
                     <button
                         onClick={() => setMode('byok')}
                         className={`flex-1 py-2.5 px-3 rounded-lg text-xs font-medium transition-all border ${mode === 'byok'
-                            ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/40'
+                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/40'
                             : 'bg-slate-800/30 text-slate-400 border-slate-700/30 hover:border-slate-600/50'
                             }`}
                     >
@@ -124,7 +124,7 @@ export function SettingsTab({ settings, onSave }: Props) {
                             value={ownKey}
                             onChange={(e) => setOwnKey(e.target.value)}
                             placeholder="Enter your API key"
-                            className="w-full text-xs bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
+                            className="w-full text-xs bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
                         />
                         <p className="text-[10px] text-slate-600">
                             🔒 Stored locally. Never sent anywhere except your provider.
@@ -137,7 +137,7 @@ export function SettingsTab({ settings, onSave }: Props) {
                             value={ownEndpoint}
                             onChange={(e) => setOwnEndpoint(e.target.value)}
                             placeholder="https://api.openai.com/v1/chat/completions"
-                            className="w-full text-xs bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
+                            className="w-full text-xs bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
                         />
                     </div>
                     <div className="space-y-1.5">
@@ -147,7 +147,7 @@ export function SettingsTab({ settings, onSave }: Props) {
                             value={ownModel}
                             onChange={(e) => setOwnModel(e.target.value)}
                             placeholder="gpt-4o-mini"
-                            className="w-full text-xs bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
+                            className="w-full text-xs bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
                         />
                     </div>
 
@@ -213,9 +213,9 @@ export function SettingsTab({ settings, onSave }: Props) {
 
             {/* AX Key Info */}
             {mode === 'ax' && (
-                <div className="p-3 rounded-lg bg-indigo-500/5 border border-indigo-500/10">
+                <div className="p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/10">
                     {isSignedIn ? (
-                        <p className="text-[11px] text-indigo-400/80 leading-relaxed">
+                        <p className="text-[11px] text-emerald-400/80 leading-relaxed">
                             ✅ You're signed in and using AX's built-in AI. No configuration needed — just head to
                             the <strong>Diagnose</strong> tab and start debugging.
                         </p>
@@ -256,7 +256,7 @@ export function SettingsTab({ settings, onSave }: Props) {
                                         value={spec.name}
                                         onChange={(e) => updateSpec(spec.id, 'name', e.target.value)}
                                         placeholder="Spec Name (e.g., Cursor Rules)"
-                                        className="flex-1 text-xs bg-slate-900 border border-slate-700 rounded p-1.5 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 transition-all duration-200"
+                                        className="flex-1 text-xs bg-slate-900 border border-slate-700 rounded p-1.5 text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all duration-200"
                                     />
                                     <button
                                         onClick={() => removeSpec(spec.id)}
@@ -270,7 +270,7 @@ export function SettingsTab({ settings, onSave }: Props) {
                                     value={spec.content}
                                     onChange={(e) => updateSpec(spec.id, 'content', e.target.value)}
                                     placeholder="Paste your rules or specifications here..."
-                                    className="w-full text-xs font-mono bg-slate-900 border border-slate-700 rounded p-2 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 transition-all duration-200 h-24 resize-y"
+                                    className="w-full text-xs font-mono bg-slate-900 border border-slate-700 rounded p-2 text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-all duration-200 h-24 resize-y"
                                 />
                             </div>
                         ))
@@ -283,8 +283,8 @@ export function SettingsTab({ settings, onSave }: Props) {
                 <button
                     onClick={handleSave}
                     className={`w-full py-2 rounded-lg text-xs font-medium transition-all ${saved
-                        ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
-                        : 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-400 hover:to-purple-500 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-indigo-500/20'
+                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                        : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-400 hover:to-teal-400 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-emerald-500/20'
                         }`}
                 >
                     {saved ? '✅ Saved!' : 'Save Settings'}
