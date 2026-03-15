@@ -89,7 +89,7 @@ export function ScannerTab() {
             <button
                 onClick={handleScan}
                 disabled={isScanning || urls.length === 0}
-                className="w-full py-3 rounded-xl font-medium transition-all shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed bg-indigo-600 hover:bg-emerald-500 text-white shadow-emerald-500/20"
+                className="w-full py-3 rounded-xl font-medium transition-all shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-500/20"
             >
                 {isScanning ? (
                     <span className="flex items-center justify-center gap-2">

@@ -33,7 +33,7 @@ export function WelcomeTab({ onConnectByok }: WelcomeTabProps) {
 
                         <button
                             onClick={() => chrome.tabs.create({ url: chrome.runtime.getURL('popup.html#/sign-up') })}
-                            className="w-full py-2.5 px-4 rounded-lg border border-indigo-600/50 bg-emerald-500/10 text-indigo-300 text-sm font-medium hover:bg-emerald-500/20 hover:text-white transition-all flex items-center justify-center gap-2"
+                            className="w-full py-2.5 px-4 rounded-lg border border-emerald-600/50 bg-emerald-500/10 text-emerald-300 text-sm font-medium hover:bg-emerald-500/20 hover:text-white transition-all flex items-center justify-center gap-2"
                         >
                             <span>✨</span> Create Account
                         </button>

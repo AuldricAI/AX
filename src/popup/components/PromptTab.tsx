@@ -93,7 +93,7 @@ export function PromptTab({ isUsingAxKey, hasApiKey }: Props) {
                         Generate Prompt
                     </button>
                     <div className="p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/10 mt-2">
-                        <p className="text-[11px] text-indigo-300/80 leading-relaxed text-center">
+                        <p className="text-[11px] text-emerald-300/80 leading-relaxed text-center">
                             AX will capture the page DOM, network state, and errors, and use the LLM to write a comprehensive prompt tailored for your intent.
                         </p>
                     </div>
