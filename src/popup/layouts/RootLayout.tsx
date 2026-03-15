@@ -20,8 +20,8 @@ export function RootLayout() {
             routerPush={(to) => navigate(to)}
             routerReplace={(to) => navigate(to, { replace: true })}
             afterSignOutUrl={`${POPUP_URL}#/`}
-            signInFallbackRedirectUrl={`${POPUP_URL}#/success`}
-            signUpFallbackRedirectUrl={`${POPUP_URL}#/success`}
+            signInFallbackRedirectUrl={`${POPUP_URL}#/`}
+            signUpFallbackRedirectUrl={`${POPUP_URL}#/`}
         >
             <Outlet />
         </ClerkProvider>
